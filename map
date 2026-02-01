@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive GIS Map with KML</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      width: 75%;
+      margin: 0 auto; /* Center the map */
+      height: 800px;
+    }
+    #search-results {
+      width: 90%;
+      margin: 0 auto; /* Center the search results */
+      padding: 20px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .polygon-label {
+      position: absolute;
+      font-size: 14px;
+      font-weight: bold; /* Make the text bold */
+      pointer-events: none;
+    }
+    .highlight {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="search-results"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
+  <script>
+    var map = L.map('map', {
+      scrollWheelZoom: false // Disable zooming on scroll
+    }).setView([41.97615, -112.256995], 20); // Set maxZoom to this value
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19 // Set maxZoom for the tile layer
+    }).addTo(map);
+
+    var searchResultsDiv = document.getElementById('search-results');
+    var selectedPolygon;
+    var kmlLayer;
+    var csvData = [];
+
+    function updateSelectedSection(name) {
+      searchCSV(name);
+    }
+
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+        fillColor: 'yellow', // Change the color to yellow when selected
+        fillOpacity: 0.5
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+    }
+
+    function resetHighlight(e) {
+      if (selectedPolygon !== e.target) {
+        kmlLayer.resetStyle(e.target);
+      }
+    }
+
+    function selectFeature(e) {
+      var layer = e.target;
+
+      if (selectedPolygon) {
+        kmlLayer.resetStyle(selectedPolygon);
+      }
+
+      selectedPolygon = layer;
+      updateSelectedSection(layer.feature.properties.name);
+      highlightFeature(e);
+    }
+
+    function onEachFeature(feature, layer) {
+      var bounds = layer.getBounds();
+      var center = bounds.getCenter();
+      var name = feature.properties.name;
+
+      var label = L.divIcon({
+        className: 'polygon-label',
+        html: '<div>' + name + '</div>'
+      });
+
+      var marker = L.marker(center, { icon: label }).addTo(map);
+
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: selectFeature
+      });
+    }
+
+    kmlLayer = omnivore.kml('https://raw.githubusercontent.com/jjohn9/PotrageCemetery/main/Portage%20Cemetery%20v1%201TO5.kml', null, L.geoJSON(null, {
+      filter: function(feature, layer) {
+        // Return true to include the feature, false to exclude
+        return feature.geometry.type === 'Polygon'; // Include only polygons
+      },
+      onEachFeature: onEachFeature
+    })).addTo(map);
+
+    // Fetch and parse the CSV data
+    fetch('<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive GIS Map with KML</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      width: 75%;
+      margin: 0 auto; /* Center the map */
+      height: 800px;
+    }
+    #search-results {
+      width: 90%;
+      margin: 0 auto; /* Center the search results */
+      padding: 20px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .polygon-label {
+      position: absolute;
+      font-size: 14px;
+      font-weight: bold; /* Make the text bold */
+      pointer-events: none;
+    }
+    .highlight {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="search-results"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
+  <script>
+    var map = L.map('map', {
+      scrollWheelZoom: false // Disable zooming on scroll
+    }).setView([37.555574, -115.233716], 19); // Set maxZoom to 19
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19 // Set maxZoom for the tile layer
+    }).addTo(map);
+
+    var searchResultsDiv = document.getElementById('search-results');
+    var selectedPolygon;
+    var kmlLayer;
+    var csvData = [];
+
+    function updateSelectedSection(name) {
+      searchCSV(name);
+    }
+
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+        fillColor: 'yellow', // Change the color to yellow when selected
+        fillOpacity: 0.5
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+    }
+
+    function resetHighlight(e) {
+      if (selectedPolygon !== e.target) {
+        kmlLayer.resetStyle(e.target);
+      }
+    }
+
+    function selectFeature(e) {
+      var layer = e.target;
+
+      if (selectedPolygon) {
+        kmlLayer.resetStyle(selectedPolygon);
+      }
+
+      selectedPolygon = layer;
+      updateSelectedSection(layer.feature.properties.name);
+      highlightFeature(e);
+    }
+
+    function onEachFeature(feature, layer) {
+      var bounds = layer.getBounds();
+      var center = bounds.getCenter();
+      var name = feature.properties.name;
+
+      var label = L.divIcon({
+        className: 'polygon-label',
+        html: '<div>' + name + '</div>'
+      });
+
+      var marker = L.marker(center, { icon: label }).addTo(map);
+
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: selectFeature
+      });
+    }
+
+    kmlLayer = omnivore.kml('https://raw.githubusercontent.com/jjohn9/Schofield-Cemetery/refs/heads/main/SW_Shifted_Site_Plan.kml', null, L.geoJSON(null, {
+      filter: function(feature, layer) {
+        // Return true to include the feature, false to exclude
+        return feature.geometry.type === 'Polygon'; // Include only polygons
+      },
+      onEachFeature: onEachFeature
+    })).addTo(map);
+
+    // Fetch and parse the CSV data
+    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQo3Ucqz6Y0QWaZ4VjaIFXxBrHpRtr4kzF6HyqtJx5U6dt0gvDLMHLyrTcnWy0h2zpKIZfD_e9P-Xzy/pub?gid=76527711&single=true&output=csv')
+      .then(response => response.text())
+      .then(data => {
+        csvData = data.split('\n').map(row => row.split(','));
+      })
+      .catch(error => {
+        console.error('Error fetching CSV data:', error);
+      });
+
+    function searchCSV(name) {
+      var results = csvData.filter(row => row.length > 4 && row[4].toLowerCase() === name.toLowerCase());
+      displaySearchResults(results);
+    }
+
+    function displaySearchResults(results) {
+      if (results.length > 0) {
+        var table = '<table>';
+        table += '<tr><th>First</th><th>Middle</th><th>Last</th><th>Suffix</th><th>Lot</th><th>Birth</th><th>Death</th><th>Find a Grave</th></tr>';
+        results.forEach(row => {
+          table += '<tr>';
+          for (var i = 0; i < row.length; i++) {
+            var cellContent = row[i];
+            if (cellContent && i === 4) { // Fifth column
+              cellContent = '<span class="highlight">' + cellContent + '</span>'; // Bold the matched term
+            }
+            if (cellContent && cellContent.startsWith('http')) {
+              cellContent = `<a href="${cellContent}" target="_blank">${cellContent}</a>`;
+            }
+            table += '<td>' + cellContent + '</td>';
+          }
+          table += '</tr>';
+        });
+        table += '</table>';
+        searchResultsDiv.innerHTML = table;
+      } else {
+        searchResultsDiv.innerHTML = '<p>No results found.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
+')
+      .then(response => response.text())
+      .then(data => {
+        csvData = data.split('\n').map(row => row.split(','));
+      })
+      .catch(error => {
+        console.error('Error fetching CSV data:', error);
+      });
+
+    function searchCSV(name) {
+      var results = csvData.filter(row => row.length > 4 && row[4].toLowerCase() === name.toLowerCase());
+      displaySearchResults(results);
+    }
+
+    function displaySearchResults(results) {
+      if (results.length > 0) {
+        var table = '<table>';
+        table += '<tr><th>First</th><th>Middle</th><th>Last</th><th>Suffix</th><th>Lot</th><th>Birth</th><th>Death</th><th>Find a Grave</th></tr>';
+        results.forEach(row => {
+          table += '<tr>';
+          for (var i = 0; i < row.length; i++) {
+            var cellContent = row[i];
+            if (cellContent && i === 4) { // Fifth column
+              cellContent = '<span class="highlight">' + cellContent + '</span>'; // Bold the matched term
+            }
+            if (cellContent && cellContent.startsWith('http')) {
+              cellContent = `<a href="${cellContent}" target="_blank">${cellContent}</a>`;
+            }
+            table += '<td>' + cellContent + '</td>';
+          }
+          table += '</tr>';
+        });
+        table += '</table>';
+        searchResultsDiv.innerHTML = table;
+      } else {
+        searchResultsDiv.innerHTML = '<p>No results found.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
